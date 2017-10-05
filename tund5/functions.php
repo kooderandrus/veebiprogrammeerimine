@@ -1,6 +1,40 @@
 <?php
 	$database = "if17_andrus";
 	
+	//alustame sessiooni
+	session_start();
+	
+	//sisselogimise funktsioon
+	function signIn($email, $password){
+		$notice = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("SELECT id, email, password FROM vpusers WHERE email = ?");
+		$stmt->bind_param("s",$email);
+		$stmt->bind_result($id, $emailFromDB, $passwordFromDB);
+		$stmt->execute();
+		
+		//kontrollime kasutajat
+		if($stmt->fetch()){
+			$hash = hash("sha512", $password);
+			if($hash == $passwordFromDB){
+				$notice = "Kõik korras! Logisimegi sisse!";
+				
+				//salvestame sessioonimuutujaid
+				$_SESSION["userId"] = $id;
+				$_SESSION["userEmail"] = $emailFromDB;
+				
+				//liigume pealehele
+				header("Location: main.php");
+				exit();
+			} else {
+				$notice = "Sisestasite vale salasõna!";
+			}
+		} else {
+			$notice = "Sellist kasutajat (" .$email .") ei ole!";
+		}
+		return $notice;
+	}
+	
 	//uue kasutaja andmebaasi lisamine
 	function signUp($signupFirstName, $signupFamilyName, $signupBirthDate, $gender, $signupEmail, $signupPassword){
 		//ühendus serveriga
