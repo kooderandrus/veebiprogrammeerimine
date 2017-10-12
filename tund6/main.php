@@ -14,10 +14,6 @@
 		exit();
 	}
 
-	//muutujad
-	$myName = "Andrus";
-	$myFamilyName = "Aun";
-	
 	$picDir = "../../pics/";
 	$picFiles = [];
 	$picFileTypes = ["jpg", "jpeg", "png", "gif"];
@@ -52,6 +48,7 @@
 	<p>See veebileht on loodud õppetöö raames ning ei sisalda mingisugust tõsiseltvõetavat sisu!</p>
 	<p><a href="?logout=1">Logi välja!</a></p>
 	<p><a href="usersInfo.php">Kasutajate info</a></p>
+	<p><a href="usersideas.php">Head mõtted</a></p>
 	<img src="<?php echo $picDir .$picFile; ?>" alt="Tallinna ülikool">
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 	$database = "if17_andrus";
+	require("../../../config.php");
 	
 	//alustame sessiooni
 	session_start();
@@ -57,6 +58,57 @@
 		}
 		$stmt->close();
 		$mysqli->close();
+	}
+	
+	function saveIdea($idea, $color){
+		$notice = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("INSERT INTO vpuserideas (userid, idea, ideacolor) VALUES (?, ?, ?)");
+		echo $mysqli->error;
+		$stmt->bind_param("iss", $_SESSION["userId"], $idea, $color);
+		if($stmt->execute()){
+			$notice = "Mõte on salvestatud!";
+		} else {
+			$notice = "Salvestamisel tekkis viga: " .$stmt->error;
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		return $notice;
+	}
+	
+	function listIdeas(){
+		$notice = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		//$stmt = $mysqli->prepare("SELECT idea, ideacolor FROM vpuserideas");
+		//$stmt = $mysqli->prepare("SELECT idea, ideacolor FROM vpuserideas ORDER BY id DESC");
+		$stmt = $mysqli->prepare("SELECT idea, ideacolor FROM vpuserideas WHERE userid = ? ORDER BY id DESC");
+		echo $mysqli->error;
+		$stmt->bind_param("i", $_SESSION["userId"]);
+		$stmt->bind_result($idea, $color);
+		$stmt->execute();
+		
+		while($stmt->fetch()){
+			//<p style="background-color: #ff5577">Hea mõte</p>
+			$notice .= '<p style="background-color: ' .$color .'">' .$idea ."</p> \n";
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		return $notice;
+	}
+	
+	function latestIdea(){
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("SELECT idea FROM vpuserideas WHERE id = (SELECT MAX(id) FROM vpuserideas)");
+		echo $mysqli->error;
+		$stmt->bind_result($idea);
+		$stmt->execute();
+		$stmt->fetch();
+		
+		$stmt->close();
+		$mysqli->close();
+		return $idea;
 	}
 	
 	//sisestuse kontrollimine
